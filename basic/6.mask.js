@@ -1,4 +1,5 @@
-import cv from 'opencv4nodejs'
+// import cv from 'opencv4nodejs'
+const cv = require('opencv4nodejs')
 
 //참고 예제 
 //https://medium.com/@muehler.v/simple-hand-gesture-recognition-using-opencv-and-javascript-eb3d6ced28a0
