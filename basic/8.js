@@ -1,29 +1,64 @@
-const cv = require('opencv4nodejs');
-const { grabFrames } = require('./utils');
+// import cv from 'opencv4nodejs'
+const cv = require('opencv4nodejs')
 
-// segmenting by skin color (has to be adjusted)
-const skinColorUpper = hue => new cv.Vec(hue, 0.8 * 255, 0.6 * 255);
-const skinColorLower = hue => new cv.Vec(hue, 0.1 * 255, 0.05 * 255);
+//참고 예제 
+//https://medium.com/@muehler.v/simple-hand-gesture-recognition-using-opencv-and-javascript-eb3d6ced28a0
+//https://github.com/justadudewhohacks/opencv4nodejs/blob/master/examples/handGestureRecognition0.js
+const blue = new cv.Vec(255, 0, 0);
+const green = new cv.Vec(0, 255, 0);
+const red = new cv.Vec(0, 0, 255); //bgr
+const orange = new cv.Vec(0, 64, 255);
 
-const makeHandMask = (img) => {
-  // filter by skin color
-  const imgHLS = img.cvtColor(cv.COLOR_BGR2HLS);
-  const rangeMask = imgHLS.inRange(skinColorLower(0), skinColorUpper(15));
 
-  // remove noise
-  const blurred = rangeMask.blur(new cv.Size(10, 10));
-  const thresholded = blurred.threshold(200, 255, cv.THRESH_BINARY);
+let maskImg = cv.imread('../res/hand5_masked.png')
+// cv.imshowWait('maskImg',maskImg)
 
-  return thresholded;
-};
+let _maskImg = maskImg.cvtColor(cv.COLOR_BGR2GRAY)
 
-const getHandContour = (handMask) => {
-  const mode = cv.RETR_EXTERNAL;
-  const method = cv.CHAIN_APPROX_SIMPLE;
-  const contours = handMask.findContours(mode, method);
-  // largest contour
-  return contours.sort((c0, c1) => c1.area - c0.area)[0];
-};
+//윤각선 찾기 
+const mode = cv.RETR_EXTERNAL;
+const method = cv.CHAIN_APPROX_SIMPLE;
+const contours = _maskImg.findContours(mode, method);
+
+// console.log(contours)
+let sort_countors = contours.sort((c0, c1) => c1.area - c0.area)[0];
+// console.log(sort_countors.getPoints())
+
+maskImg.drawContours([sort_countors.getPoints()], -1, blue, 3)
+
+
+let contour = sort_countors
+
+// const maxPointDist = 25;
+// const hullIndices = getRoughHull(handContour, maxPointDist);
+
+//외각선 정보 가지고 볼록 껍질 구하기
+const hullIndices = contour.convexHullIndices();
+
+console.log(hullIndices)
+
+const contourPoints = contour.getPoints();
+
+const hullPointsWithIdx = hullIndices.map(idx => ({
+    pt: contourPoints[idx],
+    contourIdx: idx
+}));
+
+console.log("hullPointsWithIdx", hullPointsWithIdx)
+
+hullPointsWithIdx.forEach((v) => {
+    maskImg.drawEllipse(
+        new cv.RotatedRect(v.pt, new cv.Size(20, 20), 0),
+        { color: red, thickness: 2 }
+    );
+})
+//   const hullPoints = hullPointsWithIdx.map(ptWithIdx => ptWithIdx.pt);
+cv.imshowWait('countours', maskImg)
+
+//볼록 다각형 간소화 시키기 
+const hullPoints = hullPointsWithIdx.map(ptWithIdx => ptWithIdx.pt);
+
+console.log("hull points ", hullPoints)
 
 // returns distance of two points
 const ptDist = (pt1, pt2) => pt1.sub(pt2).norm();
@@ -32,72 +67,131 @@ const ptDist = (pt1, pt2) => pt1.sub(pt2).norm();
 const getCenterPt = pts => pts.reduce(
     (sum, pt) => sum.add(pt),
     new cv.Point(0, 0)
-  ).div(pts.length);
+).div(pts.length);
 
-// get the polygon from a contours hull such that there
-// will be only a single hull point for a local neighborhood
-const getRoughHull = (contour, maxDist) => {
-  // get hull indices and hull points
-  const hullIndices = contour.convexHullIndices();
-  const contourPoints = contour.getPoints();
-  const hullPointsWithIdx = hullIndices.map(idx => ({
-    pt: contourPoints[idx],
-    contourIdx: idx
-  }));
-  const hullPoints = hullPointsWithIdx.map(ptWithIdx => ptWithIdx.pt);
 
-  // group all points in local neighborhood
-  const ptsBelongToSameCluster = (pt1, pt2) => ptDist(pt1, pt2) < maxDist;
-  const { labels } = cv.partition(hullPoints, ptsBelongToSameCluster);
-  const pointsByLabel = new Map();
-  labels.forEach(l => pointsByLabel.set(l, []));
-  hullPointsWithIdx.forEach((ptWithIdx, i) => {
+
+// group all points in local neighborhood
+const maxDist = 25;
+const ptsBelongToSameCluster = (pt1, pt2) => ptDist(pt1, pt2) < maxDist;
+
+const { labels } = cv.partition(hullPoints, ptsBelongToSameCluster);
+
+console.log("labels", labels)
+
+const pointsByLabel = new Map();
+labels.forEach(l => pointsByLabel.set(l, []));
+
+// console.log(pointsByLabel)
+
+hullPointsWithIdx.forEach((ptWithIdx, i) => {
     const label = labels[i];
+    console.log(label, labels, i, ptWithIdx)
     pointsByLabel.get(label).push(ptWithIdx);
-  });
+});
 
-  // map points in local neighborhood to most central point
-  const getMostCentralPoint = (pointGroup) => {
+console.log("pointsByLabel", pointsByLabel)
+
+// map points in local neighborhood to most central point
+const getMostCentralPoint = (pointGroup) => {
     // find center
     const center = getCenterPt(pointGroup.map(ptWithIdx => ptWithIdx.pt));
     // sort ascending by distance to center
     return pointGroup.sort(
-      (ptWithIdx1, ptWithIdx2) => ptDist(ptWithIdx1.pt, center) - ptDist(ptWithIdx2.pt, center)
+        (ptWithIdx1, ptWithIdx2) => ptDist(ptWithIdx1.pt, center) - ptDist(ptWithIdx2.pt, center)
     )[0];
-  };
-  const pointGroups = Array.from(pointsByLabel.values());
-  // return contour indeces of most central points
-  return pointGroups.map(getMostCentralPoint).map(ptWithIdx => ptWithIdx.contourIdx);
 };
 
-const getHullDefectVertices = (handContour, hullIndices) => {
-  const defects = handContour.convexityDefects(hullIndices);
-  const handContourPoints = handContour.getPoints();
+const pointGroups = Array.from(pointsByLabel.values());
 
-  // get neighbor defect points of each hull point
-  const hullPointDefectNeighbors = new Map(hullIndices.map(idx => [idx, []]));
-  defects.forEach((defect) => {
+console.log(pointGroups)
+console.log(pointGroups.map(getMostCentralPoint))
+
+pointGroups.map(getMostCentralPoint).forEach(v => {
+
+    maskImg.drawEllipse(
+        new cv.RotatedRect(v.pt, new cv.Size(30, 30), 0),
+        { color: new cv.Vec(0, 255, 255), thickness: 2 }
+    );
+
+})
+
+cv.imshowWait('countours', maskImg)
+
+
+// console.log(pointGroups.map(getMostCentralPoint).map(ptWithIdx => ptWithIdx.contourIdx));
+
+//볼록 다각형 정점 구하기
+// pointGroups.map(getMostCentralPoint).map(ptWithIdx => ptWithIdx.contourIdx)
+let _hullIndices = pointGroups.map(getMostCentralPoint).map(ptWithIdx => ptWithIdx.contourIdx)
+console.log("rough hull : ",_hullIndices)
+
+const defects = contour.convexityDefects(_hullIndices);
+const handContourPoints = contour.getPoints();
+console.log(defects)
+
+const hullPointDefectNeighbors = new Map(_hullIndices.map(idx => [idx, []]));
+
+defects.forEach((defect) => {
     const startPointIdx = defect.at(0);
     const endPointIdx = defect.at(1);
     const defectPointIdx = defect.at(2);
     hullPointDefectNeighbors.get(startPointIdx).push(defectPointIdx);
     hullPointDefectNeighbors.get(endPointIdx).push(defectPointIdx);
-  });
+});
 
-  return Array.from(hullPointDefectNeighbors.keys())
+console.log(hullPointDefectNeighbors)
+
+let _HullDefectVertices = Array.from(hullPointDefectNeighbors.keys())
     // only consider hull points that have 2 neighbor defects
     .filter(hullIndex => hullPointDefectNeighbors.get(hullIndex).length > 1)
     // return vertex points
     .map((hullIndex) => {
-      const defectNeighborsIdx = hullPointDefectNeighbors.get(hullIndex);
-      return ({
-        pt: handContourPoints[hullIndex],
-        d1: handContourPoints[defectNeighborsIdx[0]],
-        d2: handContourPoints[defectNeighborsIdx[1]]
-      });
+        const defectNeighborsIdx = hullPointDefectNeighbors.get(hullIndex);
+        return ({
+            pt: handContourPoints[hullIndex],
+            d1: handContourPoints[defectNeighborsIdx[0]],
+            d2: handContourPoints[defectNeighborsIdx[1]]
+        });
     });
-};
 
+console.log(_HullDefectVertices,_HullDefectVertices.length)
+
+_HullDefectVertices.forEach((v,index) => {
+    maskImg.drawLine(
+      v.pt,
+      v.d1,
+      { color: orange, thickness: 2 }
+    );
+    maskImg.drawLine(
+      v.pt,
+      v.d2,
+      { color: orange, thickness: 2 }
+    );
+
+    maskImg.putText(
+        String(index),
+        v.pt,
+        cv.FONT_ITALIC,
+        1,
+        { color: green, thickness: 2 }
+      );
+
+    // maskImg.drawEllipse(
+    //     new cv.RotatedRect(v.pt, new cv.Size(10, 10), 0),
+    //     { color: orange, thickness: 2 }
+    // );
+
+    cv.imshowWait('countours', maskImg)
+
+    // console.log(`new cv.Point2(${v.pt.x},${v.pt.y}),`)
+    
+  });
+
+
+
+
+  //특정각도 이상만 남기기 
 const filterVerticesByAngle = (vertices, maxAngleDeg) =>
   vertices.filter((v) => {
     const sq = x => x * x;
@@ -108,72 +202,34 @@ const filterVerticesByAngle = (vertices, maxAngleDeg) =>
     return angleDeg < maxAngleDeg;
   });
 
-const blue = new cv.Vec(255, 0, 0);
-const green = new cv.Vec(0, 255, 0);
-const red = new cv.Vec(0, 0, 255);
 
-// main
-const delay = 20;
-grabFrames('../res/hand-gesture.mp4', delay, (frame) => {
-  const resizedImg = frame.resizeToMax(640);
+const maxAngleDeg = 60;
+const verticesWithValidAngle = filterVerticesByAngle(_HullDefectVertices, maxAngleDeg);
 
-  const handMask = makeHandMask(resizedImg);
-  const handContour = getHandContour(handMask);
-  if (!handContour) {
-    return;
-  }
+console.log("verticesWithValidAngle :",verticesWithValidAngle)
 
-  const maxPointDist = 25;
-  const hullIndices = getRoughHull(handContour, maxPointDist);
-
-  // get defect points of hull to contour and return vertices
-  // of each hull point to its defect points
-  const vertices = getHullDefectVertices(handContour, hullIndices);
-
-  // fingertip points are those which have a sharp angle to its defect points
-  const maxAngleDeg = 60;
-  const verticesWithValidAngle = filterVerticesByAngle(vertices, maxAngleDeg);
-
-  const result = resizedImg.copy();
-  // draw bounding box and center line
-  resizedImg.drawContours(
-    [handContour],
-    blue,
-    { thickness: 2 }
-  );
-
-  // draw points and vertices
-  verticesWithValidAngle.forEach((v) => {
-    resizedImg.drawLine(
+verticesWithValidAngle.forEach((v) => {
+    maskImg.drawLine(
       v.pt,
       v.d1,
       { color: green, thickness: 2 }
     );
-    resizedImg.drawLine(
+    maskImg.drawLine(
       v.pt,
       v.d2,
       { color: green, thickness: 2 }
     );
-    resizedImg.drawEllipse(
-      new cv.RotatedRect(v.pt, new cv.Size(20, 20), 0),
-      { color: red, thickness: 2 }
-    );
-    result.drawEllipse(
-      new cv.RotatedRect(v.pt, new cv.Size(20, 20), 0),
-      { color: red, thickness: 2 }
-    );
+
+    cv.imshowWait('countours', maskImg)
+    
   });
 
-  // display detection result
   const numFingersUp = verticesWithValidAngle.length;
-  result.drawRectangle(
-    new cv.Point(10, 10),
-    new cv.Point(70, 70),
-    { color: green, thickness: 2 }
-  );
+
+  console.log(numFingersUp)
 
   const fontScale = 2;
-  result.putText(
+  maskImg.putText(
     String(numFingersUp),
     new cv.Point(20, 60),
     cv.FONT_ITALIC,
@@ -181,11 +237,11 @@ grabFrames('../res/hand-gesture.mp4', delay, (frame) => {
     { color: green, thickness: 2 }
   );
 
-  const { rows, cols } = result;
-  const sideBySide = new cv.Mat(rows, cols * 2, cv.CV_8UC3);
-  result.copyTo(sideBySide.getRegion(new cv.Rect(0, 0, cols, rows)));
-  resizedImg.copyTo(sideBySide.getRegion(new cv.Rect(cols, 0, cols, rows)));
+  cv.imshowWait('countours', maskImg)
 
-  cv.imshow('handMask', handMask);
-  cv.imshow('result', sideBySide);
-});
+
+  
+
+
+
+
