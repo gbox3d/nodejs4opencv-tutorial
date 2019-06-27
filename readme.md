@@ -19,6 +19,10 @@ node --experimental-modules 6.mjs
 
 ### 참고
 
+openCV 공식튜토리얼
+https://docs.opencv.org/4.1.0/index.html
+
+
 저장소  
 https://github.com/justadudewhohacks/opencv4nodejs  
 api 문서  
