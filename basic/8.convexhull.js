@@ -4,6 +4,11 @@ const cv = require('opencv4nodejs')
 //참고 예제 
 //https://medium.com/@muehler.v/simple-hand-gesture-recognition-using-opencv-and-javascript-eb3d6ced28a0
 //https://github.com/justadudewhohacks/opencv4nodejs/blob/master/examples/handGestureRecognition0.js
+
+//https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_imgproc/py_contours/py_contours_more_functions/py_contours_more_functions.html
+//알고리즘 설명 
+//https://hns17.tistory.com/entry/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-ConvexHull-Grahams-Scan
+
 const blue = new cv.Vec(255, 0, 0);
 const green = new cv.Vec(0, 255, 0);
 const red = new cv.Vec(0, 0, 255); //bgr
