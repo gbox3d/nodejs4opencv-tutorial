@@ -15,8 +15,11 @@ matBGR.set(50, 50, [0, 0, 255]); //50,50 에 빨간점 찍기
 const vec3 = matBGR.at(50, 50); //50,50 의 픽셀 얻기 
 console.log(vec3)
 
+//특정 영역 복사하기 
 let temp = new cv.Mat(64,64,cv.CV_8UC3)
 region.copyTo(temp);
+
+cv.imshowWait("out", temp)
 
 // get a node buffer with raw Mat data
 let matAsBuffer = temp.getData()

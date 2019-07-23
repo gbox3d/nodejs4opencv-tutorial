@@ -16,7 +16,7 @@ cv.imshowWait('maskImg',maskImg)
 let _maskImg = maskImg.cvtColor(cv.COLOR_BGR2GRAY) //그레이 스케일로 변환 
 const mode = cv.RETR_EXTERNAL;
 const method = cv.CHAIN_APPROX_SIMPLE;
-const contours = maskImg.findContours(mode, method);
+const contours = _maskImg.findContours(mode, method);
 
 // console.log(contours)
   // largest contour
