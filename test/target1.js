@@ -1,6 +1,6 @@
 const cv = require('opencv4nodejs')
 
-let srcMat = cv.imread('../res/tt.png')
+let srcMat = cv.imread('../res/tg1.jpeg')
 
 cv.imshowWait("out",srcMat)
 
@@ -10,7 +10,7 @@ cv.imshowWait("out",srcMat)
 const imgGray = srcMat.cvtColor(cv.COLOR_BGR2GRAY);
 cv.imshowWait('out',imgGray)
 
-const _mask1 = imgGray.inRange(0, 128);
+const _mask1 = imgGray.inRange(0, 64);
 cv.imshowWait('out',_mask1)
 
 
@@ -19,9 +19,21 @@ const contours = _mask1.findContours(
     cv.CHAIN_APPROX_SIMPLE
 );
 
-let sort_countors = contours.sort((c0, c1) => c1.area - c0.area)[0];
+let sort_countors = contours.sort((c0, c1) => c1.area - c0.area);
 
-console.log(sort_countors.getPoints())
+
+let _sort_countors_pointset = sort_countors.reduce((acc,cur)=> {
+
+    if( cur.area > 200) {
+        acc.push(cur.getPoints())
+    }
+    return acc;
+
+},[]);
+
+console.log(_sort_countors_pointset.length)
+
+// console.log(sort_countors.getPoints())
 
 const blue = new cv.Vec(255, 0, 0);
 const green = new cv.Vec(0, 255, 0);
@@ -30,7 +42,20 @@ const red = new cv.Vec(0, 0, 255);
 
 const _outImg = imgGray.cvtColor(cv.COLOR_GRAY2BGR);
 
-_outImg.drawContours([ sort_countors.getPoints()  ] ,-1,red,3)
+_outImg.drawContours(   _sort_countors_pointset ,-1,red,3);
+
+// _sort_countors.forEach((v)=> {
+//     _outImg.drawContours( [v.getPoints()]   ,-1,red,3);
+
+// })
+
+// for (var i =0;i<100;i++)
+// {
+//     console.log(sort_countors[i].area);
+//     _outImg.drawContours([ _sort_countors[i].getPoints()  ] ,-1,red,3);
+// }
+
+
 
 
 cv.imshowWait('countours',_outImg)

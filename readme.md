@@ -28,8 +28,16 @@ https://github.com/justadudewhohacks/opencv4nodejs
 api 문서  
 https://justadudewhohacks.github.io/opencv4nodejs/docs/Mat
 
-
 https://github.com/justadudewhohacks/opencv-express
+
+
+controus 기능 설명  
+https://m.blog.naver.com/PostView.nhn?blogId=samsjang&logNo=220524551089&proxyReferer=https%3A%2F%2Fwww.google.com%2F
+
+opencv 강좌 블로그(iaidol)
+https://m.blog.naver.com/PostList.nhn?blogId=samsjang&categoryNo=66&logCode=0&categoryName=OpenCV
+
+
 
 
 

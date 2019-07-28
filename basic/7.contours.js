@@ -20,11 +20,12 @@ const contours = _maskImg.findContours(mode, method);
 
 // console.log(contours)
   // largest contour
-let sort_countors = contours.sort((c0, c1) => c1.area - c0.area)[0];
+let sort_countors = contours.sort((c0, c1) => c1.area - c0.area);
 
-console.log(sort_countors.getPoints())
+//console.log(sort_countors.getPoints())
 
-maskImg.drawContours([ sort_countors.getPoints()  ] ,-1,red,3)
+console.log(sort_countors[0]);
+maskImg.drawContours([ sort_countors[0].getPoints()  ] ,-1,red,3)
 
 // const result = maskImg.copy();
 //   // draw bounding box and center line
