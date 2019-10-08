@@ -42,10 +42,11 @@ mat.drawEllipse(
     { color: new cv.Vec(0, 0, 255), thickness: 2 }
 );
 
-mat.drawCircle(new cv.Point2(128, 128), 16,
+mat.drawCircle(new cv.Point2(128, 128),
+    16, //반지름 
     {
         color: new cv.Vec(0, 0, 255),
-        thickness: 1
+        thickness: 1 //-1 이면 체우기
     }
 );
 

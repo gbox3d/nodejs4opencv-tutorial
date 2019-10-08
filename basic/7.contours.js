@@ -11,7 +11,7 @@ const green = new cv.Vec(0, 255, 0);
 const red = new cv.Vec(0, 0, 255);
 
 let maskImg = cv.imread('../res/hand5_masked.png')
-cv.imshowWait('maskImg',maskImg)
+cv.imshowWait('maskImg', maskImg)
 
 let _maskImg = maskImg.cvtColor(cv.COLOR_BGR2GRAY) //그레이 스케일로 변환 
 const mode = cv.RETR_EXTERNAL;
@@ -19,13 +19,17 @@ const method = cv.CHAIN_APPROX_SIMPLE;
 const contours = _maskImg.findContours(mode, method);
 
 // console.log(contours)
-  // largest contour
+// largest contour
 let sort_countors = contours.sort((c0, c1) => c1.area - c0.area);
 
 //console.log(sort_countors.getPoints())
 
 console.log(sort_countors[0]);
-maskImg.drawContours([ sort_countors[0].getPoints()  ] ,-1,red,3)
+maskImg.drawContours([sort_countors[0].getPoints()],
+  -1, //그려줄 인덱스 -1 이면 전체 다그리기 
+  red,  //색
+  3 //두께 
+  )
 
 // const result = maskImg.copy();
 //   // draw bounding box and center line
@@ -34,4 +38,4 @@ maskImg.drawContours([ sort_countors[0].getPoints()  ] ,-1,red,3)
 //     blue
 //   );
 
-cv.imshowWait('countours',maskImg)
+cv.imshowWait('countours', maskImg)
