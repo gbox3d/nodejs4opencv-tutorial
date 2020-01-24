@@ -4,6 +4,7 @@
   "description": "nodejs opencv",
   "main": "index.js",
   "dependencies": {
+    "canvas": "^2.6.1",
     "opencv4nodejs": "^4.17.0"
   },
   "devDependencies": {

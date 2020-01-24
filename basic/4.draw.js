@@ -50,7 +50,8 @@ mat.drawCircle(new cv.Point2(128, 128),
     }
 );
 
-cv.imshowWait('drawers', mat);
+// cv.imshowWait('drawers', mat);
+cv.imwrite('../temp/out_drawers.png', mat);
 
 const test_pts = [new cv.Point2(450, 319),
 new cv.Point2(331, 435),
@@ -115,5 +116,7 @@ mat.drawPolylines(
 
 
 
-// cv.imwrite('../temp/out.png', mat);
-cv.imshowWait('drawers', mat);
+cv.imwrite('../temp/out.png', mat);
+// cv.imshowWait('drawers', mat);
+
+console.log('done!')
