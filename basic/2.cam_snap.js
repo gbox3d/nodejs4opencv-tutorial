@@ -1,9 +1,20 @@
+
 const cv = require('opencv4nodejs')
 
-const devicePort = 0;
+console.log(process.argv.length)
+
+let devicePort = 0;
+
+if(process.argv.length >= 3)
+{
+    devicePort = parseInt(process.argv[2]);
+    
+}
+
+console.log(`prepare capture device : ${devicePort} `);
 const wCap = new cv.VideoCapture(devicePort);
 
-console.log('cam on');
+console.log('device  ok');
 
 
 while(1) {
