@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "canvas": "^2.6.1",
-    "opencv4nodejs": "^4.17.0"
+    "opencv4nodejs": "^5.5.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

@@ -9,7 +9,7 @@ while (!done) {
   let frame = wCap.read();
   // loop back to start on end of stream reached
   if (frame.empty) {
-    vCap.reset();
+    wCap.reset();
     frame = wCap.read();
   }
 
