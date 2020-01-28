@@ -24,7 +24,8 @@ function makeCircleContour(size) {
     console.log(contours)
 
     return contours[0];
-    const circle_contour = contours[0];
+
+    // const circle_contour = contours[0];
 }
 
 const imgOut = new cv.Mat(256,256,
@@ -35,6 +36,7 @@ const _cc = makeCircleContour(64)
 
 imgOut.drawContours([_cc.getPoints()],0,new cv.Vec(255,0,0),3);
 
-console.log(libCom.checkCircle(_cc,0.9,0.7));
+//console.log(libCom.checkCircle(_cc,0.9,0.7));
 
-cv.imshowWait('drawers', imgOut);
+cv.imwrite(`./out/test.png`, imgOut);
+// cv.imshowWait('drawers', imgOut);

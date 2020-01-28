@@ -18,7 +18,8 @@ const contours = imgGray.findContours(
 
 let contours_pt_list = contours.reduce((acc, cur) => {
 
-    let _hrc = cur.hierarchy
+    let _hrc = cur.hierarchy;
+    // console.log(_hrc);
     console.log(`parent : ${_hrc.z}, first child : ${_hrc.y} , next : ${_hrc.w} , prev : ${_hrc.x}`)
 
     if (cur.area > 20) {
@@ -28,8 +29,9 @@ let contours_pt_list = contours.reduce((acc, cur) => {
 
 }, []);
 
+//최상위 하나만 그리기 
 srcMat.drawContours(   contours_pt_list ,0,red,5);
 
 //console.log(contours_pt_list)
-
-cv.imshowWait("out", srcMat)
+//cv.imshowWait("out", srcMat)
+cv.imwrite(`../../temp/contourthree.png`, srcMat);
