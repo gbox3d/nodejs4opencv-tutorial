@@ -6,13 +6,14 @@ const blue = new cv.Vec(255, 0, 0);
 const green = new cv.Vec(0, 255, 0);
 const red = new cv.Vec(0, 0, 255);
 
-let cmd_arguments = []
-process.argv.forEach(function (val, index, array) {
-    console.log(index + ': ' + val);
-    cmd_arguments.push(val)
-});
+// let cmd_arguments = []
+// process.argv.forEach(function (val, index, array) {
+//     console.log(index + ': ' + val);
+//     cmd_arguments.push(val)
+// });
 
-const srcMat = cv.imread(cmd_arguments[2])
+console.log(process.argv[2])
+const srcMat = cv.imread(process.argv[2])
 const imgGray = srcMat.cvtColor(cv.COLOR_BGR2GRAY);
 
 
@@ -44,11 +45,12 @@ contours_circle.forEach((_) => {
 
 })
 
-cv.imshowWait('out', srcMat)
+// cv.imshowWait('out', srcMat)
 
 
 contours_circle.forEach( (cn,index)=> {
     //console.log(cn,index)
     let _matSrcRegion = imgGray.getRegion( cn.boundingRect() )
-    cv.imshowWait('out',_matSrcRegion)
+    cv.imwrite(`./out/_${index}.png`, _matSrcRegion);
+    // cv.imshowWait('out',_matSrcRegion)
 })
