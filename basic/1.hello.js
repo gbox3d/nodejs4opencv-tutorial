@@ -9,6 +9,6 @@ cv.imwrite('../temp/out.png', _mat_gray);
 
 console.log('done : gray img out')
 
-cv.imshowWait("out", mat) //키입력 들어올때까지 기다리기 
+// cv.imshowWait("out", mat) //키입력 들어올때까지 기다리기 
 
 
