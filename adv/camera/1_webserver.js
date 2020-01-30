@@ -2,12 +2,18 @@ const http = require('http');
 
 const raspberryPiCamera = require('raspberry-pi-camera-native');
 
-const port = 23081
+//node 1_webserver.js 23081 3280 2464 1 
+
+const port = parseInt( process.argv[2])
+const cap_width = parseInt( process.argv[3])
+const cap_height = parseInt( process.argv[4])
+const cap_fps = parseInt( process.argv[5])
+
 
 raspberryPiCamera.start({
-  width: 1280,
-  height: 720,
-  fps: 30,
+  width: cap_width,
+  height: cap_height,
+  fps: cap_fps,
   quality: 80,
   encoding: 'JPEG'
 });
@@ -19,5 +25,5 @@ const server = http.createServer((req, res) => {
 });
 
 
-console.log(`start port ${port}`)
+console.log(`start port ${port}, capture : ${cap_width}, ${cap_height}`)
 server.listen(port);
