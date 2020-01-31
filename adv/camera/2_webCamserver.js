@@ -3,17 +3,19 @@ const http = require('http');
 
 const cv = require('opencv4nodejs')
 
-//node 1_webserver.js 23081 3280 2464 1 
 
-const port = parseInt(process.argv[2])
-// const cap_width = parseInt(process.argv[3])
-// const cap_height = parseInt(process.argv[4])
+const port = 20081;
+if (process.argv.length >= 2) {
+    port = parseInt(process.argv[2])
+}
 
 // 라즈베리에서는 '/dev/video0' 이런식으로 인젝스 대신 디바이스이름을 직접 입력한다. 
 // usb 웹캠일경우 번호로한다 기본 0 
+//node 2_webCamserver.js 20081 0 1280 720 
+//pm2 start 2_webCamserver.js --name "camserver" --  20081 0 1280 720 
 let devicePort = 0;
-
 if (process.argv.length >= 4) {
+    
     let _arg = process.argv[3]
     if (/^\d+$/.test(_arg)) {
         devicePort = parseInt(_arg);

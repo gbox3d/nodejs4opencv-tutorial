@@ -4,7 +4,7 @@ const http = require('http');
 //npm install raspberry-pi-camera-native
 const raspberryPiCamera = require('raspberry-pi-camera-native');
 
-//node 1_webserver.js 23081 3280 2464 1 
+//node 1_piCamserver.js 23081 3280 2464 1 
 
 const port = parseInt(process.argv[2])
 const cap_width = parseInt(process.argv[3])
