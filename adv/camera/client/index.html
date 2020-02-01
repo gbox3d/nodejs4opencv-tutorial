@@ -16,8 +16,14 @@
     </div>
 
     <div>
-        <input id="cam_url" value="http://redstar002.iptime.org:20081/">
+        <input id="cam_url" value="http://redstar002.iptime.org">
         <button id="btn-start"> start </button>
+
+        <div id="port_1">
+            <button name="on"> on </button>
+            <button name="off"> off </button>
+        </div>
+
     </div>
 
     <script>
@@ -28,7 +34,7 @@
 
         document.querySelector("#btn-start").addEventListener('click', _ => {
 
-            isLoop=true
+            isLoop = true
             _loop()
 
         })
@@ -38,7 +44,7 @@
 
             let _url = document.querySelector('#cam_url').value;
             // fetch('http://redstar002.iptime.org:20081/')
-            fetch(`${_url}`)
+            fetch(`${_url}:20081/`)
                 .then(response => response.blob())
                 .then(images => {
                     // console.log(images)
@@ -51,15 +57,39 @@
 
                     img.src = URL.createObjectURL(images)
 
-                    if(isLoop) {
-                        setTimeout(_loop,500)
+                    if (isLoop) {
+                        setTimeout(_loop, 500)
                     }
                     // Then create a local URL for that image and print it 
                     // outside = URL.createObjectURL(images)
                     // console.log(outside)
                 });
-                
+
         }
+
+        document.querySelector("#port_1 [name=on]").addEventListener('click', _ => {
+            let _url = document.querySelector('#cam_url').value;
+
+            fetch(`${_url}:20310/rest/onoff?pin=7&value=1`)
+            .then(response=> response.json())
+            .then((_)=> {
+                alert(_.result)
+                console.log(_)
+            })
+
+        })
+
+
+        document.querySelector("#port_1 [name=off]").addEventListener('click', _ => {
+            let _url = document.querySelector('#cam_url').value;
+            fetch(`${_url}:20310/rest/onoff?pin=7&value=0`)
+            .then(response=>response.json())
+            .then(_=> {
+                alert(_.result)
+                console.log(_)
+            })
+
+        })
 
     </script>
 
