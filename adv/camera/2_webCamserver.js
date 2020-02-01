@@ -53,6 +53,12 @@ const server = http.createServer((req, res) => {
 
     let frame = wCap.read();
 
+    res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Max-Age': '1000'
+      });
     // cv.imwrite('../out.png', frame);
 
     let _buf = cv.imencode(".jpg",frame)
