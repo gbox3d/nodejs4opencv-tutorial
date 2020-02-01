@@ -4,8 +4,8 @@ const http = require('http');
 const cv = require('opencv4nodejs')
 
 
-const port = 20081;
-if (process.argv.length >= 2) {
+let port = 20081;
+if (process.argv.length >= 3) {
     port = parseInt(process.argv[2])
 }
 
@@ -54,7 +54,7 @@ const server = http.createServer((req, res) => {
     let frame = wCap.read();
 
     res.writeHead(200, {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'image/jpeg',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST',
         'Access-Control-Max-Age': '1000'

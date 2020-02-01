@@ -11,24 +11,55 @@
 
 
     <div>
-        <canvas id="mainCanvas">
-
+        <canvas id="mainCanvas" width="640" height="480">
         </canvas>
+    </div>
+
+    <div>
+        <input id="cam_url" value="http://redstar002.iptime.org:20081/">
+        <button id="btn-start"> start </button>
     </div>
 
     <script>
 
-        fetch('http://redstar002.iptime.org:20081/')
-            .then(response => response.blob())
-            .then(images => {
-                console.log(images)
-
-                // Then create a local URL for that image and print it 
-                // outside = URL.createObjectURL(images)
-                // console.log(outside)
-            })
+        var canvas = document.getElementById('mainCanvas');
+        var ctx = canvas.getContext('2d');
 
 
+        document.querySelector("#btn-start").addEventListener('click', _ => {
+
+            isLoop=true
+            _loop()
+
+        })
+
+        let isLoop = false
+        function _loop() {
+
+            let _url = document.querySelector('#cam_url').value;
+            // fetch('http://redstar002.iptime.org:20081/')
+            fetch(`${_url}`)
+                .then(response => response.blob())
+                .then(images => {
+                    // console.log(images)
+
+                    var img = new Image();
+
+                    img.onload = (_) => {
+                        ctx.drawImage(_.target, 0, 0, 640, 480)
+                    }
+
+                    img.src = URL.createObjectURL(images)
+
+                    if(isLoop) {
+                        setTimeout(_loop,500)
+                    }
+                    // Then create a local URL for that image and print it 
+                    // outside = URL.createObjectURL(images)
+                    // console.log(outside)
+                });
+                
+        }
 
     </script>
 
