@@ -17,6 +17,7 @@
 
     <div>
         <input id="cam_url" value="http://redstar002.iptime.org">
+        <input id="cam_frame" value="10">
         <button id="btn-start"> start </button>
 
         <div id="port_1">
@@ -43,6 +44,7 @@
         function _loop() {
 
             let _url = document.querySelector('#cam_url').value;
+            let _fps_delay =  1000 / parseInt( document.querySelector('#cam_frame').value);
             // fetch('http://redstar002.iptime.org:20081/')
             fetch(`${_url}:20081/`)
                 .then(response => response.blob())
@@ -58,7 +60,7 @@
                     img.src = URL.createObjectURL(images)
 
                     if (isLoop) {
-                        setTimeout(_loop, 500)
+                        setTimeout(_loop, _fps_delay)
                     }
                     // Then create a local URL for that image and print it 
                     // outside = URL.createObjectURL(images)
