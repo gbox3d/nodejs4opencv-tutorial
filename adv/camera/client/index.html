@@ -16,7 +16,7 @@
     </div>
 
     <div>
-        <input id="cam_url" value="http://redstar002.iptime.org:20081/">
+        <input id="cam_url" value="http://infantryshop.iptime.org:23081/">
         <input id="cam_frame" value="10">
         <button id="btn-start"> start </button>
 
@@ -41,6 +41,7 @@
         })
 
         let isLoop = false
+        var img = new Image();
         function _loop() {
 
             let _url = document.querySelector('#cam_url').value;
@@ -50,8 +51,6 @@
                 .then(response => response.blob())
                 .then(images => {
                     // console.log(images)
-
-                    var img = new Image();
 
                     img.onload = (_) => {
                         ctx.drawImage(_.target, 0, 0, 640, 480)
