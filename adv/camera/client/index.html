@@ -16,7 +16,7 @@
     </div>
 
     <div>
-        <input id="cam_url" value="http://redstar002.iptime.org">
+        <input id="cam_url" value="http://redstar002.iptime.org:20081/">
         <input id="cam_frame" value="10">
         <button id="btn-start"> start </button>
 
@@ -46,7 +46,7 @@
             let _url = document.querySelector('#cam_url').value;
             let _fps_delay =  1000 / parseInt( document.querySelector('#cam_frame').value);
             // fetch('http://redstar002.iptime.org:20081/')
-            fetch(`${_url}:20081/`)
+            fetch(`${_url}`)
                 .then(response => response.blob())
                 .then(images => {
                     // console.log(images)
